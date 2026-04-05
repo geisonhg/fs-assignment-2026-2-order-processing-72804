@@ -1,0 +1,108 @@
+@page "/catalog"
+@page "/"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject ApiService Api
+@inject CartService Cart
+
+<PageTitle>Product Catalog</PageTitle>
+<h1 class="mb-4">Product Catalog</h1>
+
+@if (_loading)
+{
+    <p>Loading products&#8230;</p>
+}
+else if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else
+{
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <input class="form-control" placeholder="Search&#8230;" @bind="_search" @bind:event="oninput" @onkeyup="ApplyFilter" />
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var p in _filtered)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@p.Name</h5>
+                        <p class="card-text text-muted small">@p.Description</p>
+                        <p class="fw-bold text-primary">@p.Price.ToString("C")</p>
+                        <span class="badge @(p.StockQuantity > 0 ? "bg-success" : "bg-secondary")">
+                            @(p.StockQuantity > 0 ? $"{p.StockQuantity} in stock" : "Out of stock")
+                        </span>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <button class="btn btn-primary btn-sm w-100"
+                                disabled="@(p.StockQuantity == 0)"
+                                @onclick="() => AddToCart(p)">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (_filtered.Count == 0)
+    {
+        <p class="text-muted mt-3">No products match your search.</p>
+    }
+}
+
+@if (_added is not null)
+{
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div class="toast show align-items-center text-bg-success border-0">
+            <div class="d-flex">
+                <div class="toast-body">&#10003; @_added added to cart</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" @onclick="() => _added = null"></button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    bool _loading = true;
+    string? _error;
+    string _search = "";
+    string? _added;
+
+    List<ProductDto> _products = [];
+    List<ProductDto> _filtered = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _products = await Api.GetProductsAsync();
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            _error = $"Failed to load products: {ex.Message}";
+        }
+        finally { _loading = false; }
+    }
+
+    void ApplyFilter()
+    {
+        _filtered = string.IsNullOrWhiteSpace(_search)
+            ? _products
+            : _products.Where(p => p.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    async void AddToCart(ProductDto p)
+    {
+        Cart.Add(p.ProductId, p.Name, p.Price);
+        _added = p.Name;
+        StateHasChanged();
+        await Task.Delay(2500);
+        _added = null;
+        StateHasChanged();
+    }
+}

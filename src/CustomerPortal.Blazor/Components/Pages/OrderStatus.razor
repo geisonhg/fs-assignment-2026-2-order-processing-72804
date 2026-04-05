@@ -1,0 +1,153 @@
+@page "/order-status"
+@page "/order-status/{OrderId:int}"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@implements IDisposable
+@inject ApiService Api
+
+<PageTitle>Order Status</PageTitle>
+<h1 class="mb-4">Track Your Order</h1>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="input-group">
+            <input class="form-control" type="number" min="1" @bind="_searchId" placeholder="Enter Order ID" />
+            <button class="btn btn-primary" @onclick="LoadOrderAsync">Track</button>
+        </div>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner-border text-primary" role="status"></div>
+}
+else if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else if (_order is not null)
+{
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Order #@_order.OrderId &mdash; @_order.OrderReference</span>
+            <span class="badge fs-6 @StatusBadge(_order.StatusDisplay)">@_order.StatusDisplay</span>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Placed</dt>
+                <dd class="col-sm-9">@_order.CreatedAt.ToString("f")</dd>
+                <dt class="col-sm-3">Customer</dt>
+                <dd class="col-sm-9">@_order.CustomerName</dd>
+                <dt class="col-sm-3">Shipping To</dt>
+                <dd class="col-sm-9">@_order.ShippingLine1, @_order.ShippingCity, @_order.ShippingCountry</dd>
+                @if (_order.ShipmentResult?.TrackingReference is not null)
+                {
+                    <dt class="col-sm-3">Tracking Ref</dt>
+                    <dd class="col-sm-9"><code>@_order.ShipmentResult.TrackingReference</code></dd>
+                }
+                @if (_order.InventoryResult is { Success: false })
+                {
+                    <dt class="col-sm-3">Reason</dt>
+                    <dd class="col-sm-9 text-danger">@_order.InventoryResult.FailureReason</dd>
+                }
+                @if (_order.PaymentResult is { Success: false })
+                {
+                    <dt class="col-sm-3">Reason</dt>
+                    <dd class="col-sm-9 text-danger">@_order.PaymentResult.FailureReason</dd>
+                }
+            </dl>
+
+            <h6 class="mt-3">Items</h6>
+            <table class="table table-sm">
+                <thead>
+                    <tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in _order.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.UnitPrice.ToString("C")</td>
+                            <td>@item.Subtotal.ToString("C")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="fw-bold">
+                        <td colspan="3">Total</td>
+                        <td>@_order.TotalAmount.ToString("C")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="card-footer text-muted small">
+            Auto-refreshes every 5 seconds while processing.
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int OrderId { get; set; }
+
+    int _searchId;
+    bool _loading;
+    string? _error;
+    OrderDto? _order;
+    System.Threading.Timer? _timer;
+
+    private static readonly HashSet<string> TerminalStatuses = ["Delivered", "Failed", "Cancelled"];
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (OrderId > 0)
+        {
+            _searchId = OrderId;
+            await LoadOrderAsync();
+        }
+    }
+
+    async Task LoadOrderAsync()
+    {
+        if (_searchId <= 0) return;
+        _loading = true;
+        _error = null;
+        _timer?.Dispose();
+        _timer = null;
+        try
+        {
+            _order = await Api.GetOrderAsync(_searchId);
+            if (_order is not null && !TerminalStatuses.Contains(_order.StatusDisplay))
+                _timer = new System.Threading.Timer(_ => InvokeAsync(RefreshAsync), null, 5000, 5000);
+        }
+        catch (Exception ex) { _error = $"Order not found: {ex.Message}"; }
+        finally { _loading = false; }
+    }
+
+    async Task RefreshAsync()
+    {
+        if (_searchId <= 0) return;
+        try
+        {
+            _order = await Api.GetOrderAsync(_searchId);
+            if (_order is not null && TerminalStatuses.Contains(_order.StatusDisplay))
+            {
+                _timer?.Dispose();
+                _timer = null;
+            }
+        }
+        catch { /* silent refresh */ }
+        StateHasChanged();
+    }
+
+    static string StatusBadge(string status) => status switch
+    {
+        "Pending" or "Submitted" => "bg-secondary",
+        "InventoryChecking" or "PaymentPending" or "PaymentProcessing"
+            or "ShipmentPending" or "ShipmentCreating" => "bg-warning text-dark",
+        "Confirmed" or "Shipped" or "Delivered" => "bg-success",
+        "Failed" or "Cancelled" => "bg-danger",
+        _ => "bg-secondary"
+    };
+
+    public void Dispose() => _timer?.Dispose();
+}

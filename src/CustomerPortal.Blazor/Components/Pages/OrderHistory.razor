@@ -1,0 +1,76 @@
+@page "/orders"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject ApiService Api
+
+<PageTitle>My Orders</PageTitle>
+<h1 class="mb-4">My Orders</h1>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="input-group">
+            <input class="form-control" type="number" min="1" @bind="_customerId" placeholder="Enter Customer ID" />
+            <button class="btn btn-primary" @onclick="LoadAsync">Load</button>
+        </div>
+    </div>
+</div>
+
+@if (_loading)
+{
+    <div class="spinner-border text-primary" role="status"></div>
+}
+else if (_error is not null)
+{
+    <div class="alert alert-danger">@_error</div>
+}
+else if (_orders is not null)
+{
+    @if (!_orders.Any())
+    {
+        <p class="text-muted">No orders found for customer @_customerId.</p>
+    }
+    else
+    {
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Reference</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in _orders.OrderByDescending(x => x.CreatedAt))
+                {
+                    <tr>
+                        <td>#@o.OrderId</td>
+                        <td>@o.CreatedAt.ToString("d")</td>
+                        <td>@o.OrderReference</td>
+                        <td>@o.TotalAmount.ToString("C")</td>
+                        <td><span class="badge bg-secondary">@o.StatusDisplay</span></td>
+                        <td><a href="/order-status/@o.OrderId" class="btn btn-sm btn-outline-primary">Track</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    int _customerId = 1;
+    bool _loading;
+    string? _error;
+    List<OrderSummaryDto>? _orders;
+
+    async Task LoadAsync()
+    {
+        if (_customerId <= 0) return;
+        _loading = true;
+        _error = null;
+        try { _orders = await Api.GetCustomerOrdersAsync(_customerId); }
+        catch (Exception ex) { _error = $"Failed: {ex.Message}"; }
+        finally { _loading = false; }
+    }
+}

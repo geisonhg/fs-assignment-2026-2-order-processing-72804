@@ -1,0 +1,23 @@
+@inherits LayoutComponentBase
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<nav class="navbar navbar-dark bg-dark px-3 mb-4">
+    <a class="navbar-brand fw-bold" href="/">&#127941; SportsStore</a>
+    <div class="d-flex gap-3 align-items-center">
+        <a class="nav-link text-white" href="/catalog">Catalog</a>
+        <a class="nav-link text-white" href="/cart">
+            Cart
+            @if (Cart.TotalItems > 0)
+            {
+                <span class="badge bg-warning text-dark ms-1">@Cart.TotalItems</span>
+            }
+        </a>
+        <a class="nav-link text-white" href="/orders">My Orders</a>
+        <a class="nav-link text-white" href="/order-status">Track Order</a>
+    </div>
+</nav>
+
+<main class="container">
+    @Body
+</main>
