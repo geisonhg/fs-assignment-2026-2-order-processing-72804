@@ -13,7 +13,7 @@ export default function DashboardPage() {
 
   const total = orders.length
   const revenue = orders.reduce((s, o) => s + o.totalAmount, 0)
-  const pending = orders.filter((o) => !['Delivered', 'Failed', 'Cancelled'].includes(o.statusDisplay)).length
+  const pending = orders.filter((o) => !['Completed', 'Failed', 'Cancelled'].includes(o.statusDisplay)).length
   const failed = orders.filter((o) => o.statusDisplay === 'Failed').length
 
   return (
@@ -70,9 +70,9 @@ function StatCard({ label, value, color }: { label: string; value: string; color
 
 export function StatusBadge({ status }: { status: string }) {
   const color =
-    ['Delivered', 'Confirmed', 'Shipped'].includes(status) ? 'success' :
+    ['Completed', 'InventoryConfirmed'].includes(status) ? 'success' :
     ['Failed', 'Cancelled'].includes(status) ? 'danger' :
-    ['Pending', 'Submitted'].includes(status) ? 'secondary' :
+    ['Cart', 'Submitted'].includes(status) ? 'secondary' :
     'warning'
   return <span className={`badge text-bg-${color}`}>{status}</span>
 }

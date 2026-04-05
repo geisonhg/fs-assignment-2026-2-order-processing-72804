@@ -46,12 +46,12 @@ A distributed, event-driven order processing system built on .NET 10 and React 1
 ### Order Status Flow
 
 ```
-Pending → Submitted → InventoryChecking → Confirmed
-                                       ↘ Failed
-                          Confirmed → PaymentPending → PaymentProcessing
-                                                    ↘ Failed
-                          Confirmed → ShipmentPending → ShipmentCreating → Shipped → Delivered
-                                                                         ↘ Failed
+Cart → Submitted → InventoryPending → InventoryConfirmed
+                                    ↘ InventoryFailed → Failed
+                   InventoryConfirmed → PaymentPending → PaymentApproved
+                                                      ↘ PaymentFailed → Failed
+                   PaymentApproved → ShippingPending → ShippingCreated → Completed
+                                                                       ↘ Failed
 ```
 
 ---

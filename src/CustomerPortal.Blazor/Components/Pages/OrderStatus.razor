@@ -95,7 +95,7 @@ else if (_order is not null)
     OrderDto? _order;
     System.Threading.Timer? _timer;
 
-    private static readonly HashSet<string> TerminalStatuses = ["Delivered", "Failed", "Cancelled"];
+    private static readonly HashSet<string> TerminalStatuses = ["Completed", "Failed", "Cancelled"];
 
     protected override async Task OnParametersSetAsync()
     {
@@ -142,9 +142,9 @@ else if (_order is not null)
     static string StatusBadge(string status) => status switch
     {
         "Pending" or "Submitted" => "bg-secondary",
-        "InventoryChecking" or "PaymentPending" or "PaymentProcessing"
-            or "ShipmentPending" or "ShipmentCreating" => "bg-warning text-dark",
-        "Confirmed" or "Shipped" or "Delivered" => "bg-success",
+        "InventoryPending" or "PaymentPending" or "PaymentApproved"
+            or "ShippingPending" or "ShippingCreated" => "bg-warning text-dark",
+        "InventoryConfirmed" or "Completed" => "bg-success",
         "Failed" or "Cancelled" => "bg-danger",
         _ => "bg-secondary"
     };

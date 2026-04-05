@@ -8,9 +8,11 @@ const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n)
 
 const ALL_STATUSES = [
-  'All', 'Pending', 'Submitted', 'InventoryChecking', 'Confirmed',
-  'PaymentPending', 'PaymentProcessing', 'ShipmentPending', 'ShipmentCreating',
-  'Shipped', 'Delivered', 'Failed', 'Cancelled',
+  'All', 'Cart', 'Submitted',
+  'InventoryPending', 'InventoryConfirmed', 'InventoryFailed',
+  'PaymentPending', 'PaymentApproved', 'PaymentFailed',
+  'ShippingPending', 'ShippingCreated',
+  'Completed', 'Failed', 'Cancelled',
 ]
 
 export default function OrdersPage() {
