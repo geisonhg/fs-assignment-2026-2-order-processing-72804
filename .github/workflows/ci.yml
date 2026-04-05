@@ -26,15 +26,7 @@ jobs:
         run: dotnet build SportsStore.sln --no-restore -c Release
 
       - name: Test
-        run: dotnet test tests/OrderManagement.Tests/OrderManagement.Tests.csproj --no-build -c Release --logger "trx;LogFileName=results.trx"
-
-      - name: Publish test results
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: .NET Tests
-          path: "**/results.trx"
-          reporter: dotnet-trx
+        run: dotnet test tests/OrderManagement.Tests/OrderManagement.Tests.csproj --no-build -c Release --verbosity normal
 
   # ── React build & test ──────────────────────────────────────────────────────
   react:
