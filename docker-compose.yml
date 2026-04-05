@@ -1,0 +1,121 @@
+version: "3.9"
+
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: sportsstore-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sportsstore-sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "SportsStore@2026!"
+      ACCEPT_EULA: "Y"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P 'SportsStore@2026!' -Q 'SELECT 1' -No || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # ── API ─────────────────────────────────────────────────────────────────────
+  order-api:
+    build:
+      context: .
+      dockerfile: src/OrderManagement.API/Dockerfile
+    container_name: sportsstore-api
+    ports:
+      - "5100:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=SportsStore;User Id=SA;Password=SportsStore@2026!;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+      Serilog__MinimumLevel__Default: Information
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_healthy
+
+  # ── Worker Services ─────────────────────────────────────────────────────────
+  inventory-service:
+    build:
+      context: .
+      dockerfile: src/Inventory.Service/Dockerfile
+    container_name: sportsstore-inventory
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=SportsStore;User Id=SA;Password=SportsStore@2026!;TrustServerCertificate=True"
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_healthy
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: src/Payment.Service/Dockerfile
+    container_name: sportsstore-payment
+    environment:
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  shipping-service:
+    build:
+      context: .
+      dockerfile: src/Shipping.Service/Dockerfile
+    container_name: sportsstore-shipping
+    environment:
+      RabbitMQ__Host: rabbitmq
+      RabbitMQ__Username: guest
+      RabbitMQ__Password: guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  # ── Frontends ───────────────────────────────────────────────────────────────
+  customer-portal:
+    build:
+      context: .
+      dockerfile: src/CustomerPortal.Blazor/Dockerfile
+    container_name: sportsstore-portal
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ApiBaseUrl: http://order-api:8080
+    depends_on:
+      - order-api
+
+  admin-dashboard:
+    build:
+      context: .
+      dockerfile: src/AdminDashboard.React/Dockerfile
+    container_name: sportsstore-admin
+    ports:
+      - "5200:80"
+    depends_on:
+      - order-api
