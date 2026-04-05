@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── .NET build & test ───────────────────────────────────────────────────────
+  dotnet:
+    name: .NET Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore SportsStore.sln
+
+      - name: Build
+        run: dotnet build SportsStore.sln --no-restore -c Release
+
+      - name: Test
+        run: dotnet test tests/OrderManagement.Tests/OrderManagement.Tests.csproj --no-build -c Release --logger "trx;LogFileName=results.trx"
+
+      - name: Publish test results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: "**/results.trx"
+          reporter: dotnet-trx
+
+  # ── React build & test ──────────────────────────────────────────────────────
+  react:
+    name: React Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/AdminDashboard.React
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: src/AdminDashboard.React/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  # ── Docker build (smoke test) ───────────────────────────────────────────────
+  docker:
+    name: Docker Build Smoke Test
+    runs-on: ubuntu-latest
+    needs: [dotnet, react]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build order-api image
+        run: docker build -f src/OrderManagement.API/Dockerfile -t order-api:ci .
+
+      - name: Build inventory-service image
+        run: docker build -f src/Inventory.Service/Dockerfile -t inventory-service:ci .
+
+      - name: Build payment-service image
+        run: docker build -f src/Payment.Service/Dockerfile -t payment-service:ci .
+
+      - name: Build shipping-service image
+        run: docker build -f src/Shipping.Service/Dockerfile -t shipping-service:ci .
+
+      - name: Build customer-portal image
+        run: docker build -f src/CustomerPortal.Blazor/Dockerfile -t customer-portal:ci .
+
+      - name: Build admin-dashboard image
+        run: docker build -f src/AdminDashboard.React/Dockerfile -t admin-dashboard:ci src/AdminDashboard.React/
