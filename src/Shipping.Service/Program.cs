@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Shipping.Service;
 using Shipping.Service.Services;

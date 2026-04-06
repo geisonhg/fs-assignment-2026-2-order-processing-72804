@@ -2,6 +2,7 @@ using Inventory.Service;
 using Inventory.Service.Data;
 using Inventory.Service.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 
 var host = Host.CreateDefaultBuilder(args)

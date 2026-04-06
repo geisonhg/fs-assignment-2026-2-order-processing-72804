@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Hosting;
 using Payment.Service;
 using Payment.Service.Services;
 using Serilog;

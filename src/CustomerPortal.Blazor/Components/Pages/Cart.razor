@@ -1,12 +1,12 @@
 @page "/cart"
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
-@inject CartService Cart
+@inject CartService CartSvc
 @inject NavigationManager Nav
 
 <PageTitle>Your Cart</PageTitle>
 <h1 class="mb-4">Your Cart</h1>
 
-@if (!Cart.Items.Any())
+@if (!CartSvc.Items.Any())
 {
     <div class="alert alert-info">
         Your cart is empty. <a href="/catalog">Browse products</a>
@@ -25,21 +25,21 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Cart.Items)
+            @foreach (var item in CartSvc.Items)
             {
                 <tr>
                     <td>@item.ProductName</td>
                     <td>@item.UnitPrice.ToString("C")</td>
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => Cart.Decrement(item.ProductId)">&#8722;</button>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => CartSvc.Decrement(item.ProductId)">&#8722;</button>
                             <span>@item.Quantity</span>
-                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => Cart.Increment(item.ProductId)">+</button>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="() => CartSvc.Increment(item.ProductId)">+</button>
                         </div>
                     </td>
                     <td>@((item.UnitPrice * item.Quantity).ToString("C"))</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" @onclick="() => Cart.Remove(item.ProductId)">Remove</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => CartSvc.Remove(item.ProductId)">Remove</button>
                     </td>
                 </tr>
             }
@@ -47,7 +47,7 @@ else
         <tfoot>
             <tr class="fw-bold">
                 <td colspan="3">Total</td>
-                <td>@Cart.Total.ToString("C")</td>
+                <td>@CartSvc.Total.ToString("C")</td>
                 <td></td>
             </tr>
         </tfoot>
@@ -56,6 +56,6 @@ else
     <div class="d-flex gap-2 mt-3">
         <a href="/catalog" class="btn btn-outline-secondary">Continue Shopping</a>
         <a href="/checkout" class="btn btn-primary">Checkout</a>
-        <button class="btn btn-outline-danger ms-auto" @onclick="Cart.Clear">Clear Cart</button>
+        <button class="btn btn-outline-danger ms-auto" @onclick="CartSvc.Clear">Clear Cart</button>
     </div>
 }
