@@ -10,7 +10,7 @@ export function useFetch<T>(fetcher: () => Promise<T>) {
     setLoading(true)
     fetcher()
       .then((d) => { if (!cancelled) { setData(d); setLoading(false) } })
-      .catch((e: Error) => { if (!cancelled) { setError(e.message); setLoading(false) } })
+      .catch((e: unknown) => { if (!cancelled) { setError(e instanceof Error ? e.message : String(e)); setLoading(false) } })
     return () => { cancelled = true }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
