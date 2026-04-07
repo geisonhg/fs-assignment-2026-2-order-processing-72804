@@ -12,7 +12,7 @@ public static class SeedData
         var context       = scope.ServiceProvider.GetRequiredService<OrderDbContext>();
         var logger        = scope.ServiceProvider.GetRequiredService<ILogger<OrderDbContext>>();
 
-        context.Database.Migrate();
+        context.Database.EnsureCreated();
 
         if (context.Products.Any())
         {
