@@ -1,4 +1,4 @@
-import type { OrderDetail, OrderSummary, Product } from './types'
+import type { DashboardSummary, OrderDetail, OrderSummary, Product } from './types'
 
 const BASE = '/api'
 
@@ -10,6 +10,8 @@ async function get<T>(path: string): Promise<T> {
 
 export const api = {
   getOrders: () => get<OrderSummary[]>('/orders'),
+  getOrdersByStatus: (status: string) => get<OrderSummary[]>(`/orders/by-status/${status}`),
   getOrder: (id: number) => get<OrderDetail>(`/orders/${id}`),
   getProducts: () => get<Product[]>('/products'),
+  getDashboardSummary: () => get<DashboardSummary>('/orders/summary'),
 }

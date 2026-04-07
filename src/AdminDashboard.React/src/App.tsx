@@ -3,6 +3,7 @@ import DashboardPage from './pages/DashboardPage'
 import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import ProductsPage from './pages/ProductsPage'
+import FailedOrdersPage from './pages/FailedOrdersPage'
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <NavLink className={({ isActive }) => 'nav-link text-white' + (isActive ? ' fw-bold' : '')} to="/">Dashboard</NavLink>
           <NavLink className={({ isActive }) => 'nav-link text-white' + (isActive ? ' fw-bold' : '')} to="/orders">Orders</NavLink>
           <NavLink className={({ isActive }) => 'nav-link text-white' + (isActive ? ' fw-bold' : '')} to="/products">Products</NavLink>
+          <NavLink className={({ isActive }) => 'nav-link text-danger' + (isActive ? ' fw-bold' : '')} to="/failed">Failed Orders</NavLink>
         </div>
       </nav>
       <main className="container">
@@ -21,6 +23,7 @@ export default function App() {
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/products" element={<ProductsPage />} />
+          <Route path="/failed" element={<FailedOrdersPage />} />
         </Routes>
       </main>
     </>

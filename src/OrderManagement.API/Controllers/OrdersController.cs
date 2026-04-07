@@ -25,6 +25,20 @@ public class OrdersController(IMediator mediator) : ControllerBase
         return Ok(orders);
     }
 
+    [HttpGet("summary")]
+    public async Task<IActionResult> GetSummary()
+    {
+        var summary = await mediator.Send(new GetDashboardSummaryQuery());
+        return Ok(summary);
+    }
+
+    [HttpGet("by-status/{status}")]
+    public async Task<IActionResult> GetByStatus(OrderStatus status)
+    {
+        var orders = await mediator.Send(new GetOrdersByStatusQuery(status));
+        return Ok(orders);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {

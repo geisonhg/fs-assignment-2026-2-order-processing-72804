@@ -60,6 +60,28 @@ export interface ShipmentResult {
   createdAt: string
 }
 
+export interface DashboardSummary {
+  totalOrders: number
+  totalRevenue: number
+  pendingOrders: number
+  failedOrders: number
+  completedOrders: number
+  cancelledOrders: number
+  byStatus: StatusCount[]
+  revenueLastSevenDays: DailyRevenue[]
+}
+
+export interface StatusCount {
+  status: string
+  count: number
+}
+
+export interface DailyRevenue {
+  date: string
+  revenue: number
+  orderCount: number
+}
+
 export interface Product {
   productId: number
   name: string
