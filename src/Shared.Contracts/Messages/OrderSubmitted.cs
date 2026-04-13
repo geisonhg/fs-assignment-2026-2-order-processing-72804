@@ -7,6 +7,7 @@ public class OrderSubmitted
     public required int CustomerId { get; init; }
     public required List<OrderItemMessage> Items { get; init; }
     public required decimal TotalAmount { get; init; }
+    public string? StripeSessionId { get; init; }
     public DateTime SubmittedAt { get; init; } = DateTime.UtcNow;
 }
 

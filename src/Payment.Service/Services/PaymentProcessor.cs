@@ -9,6 +9,23 @@ public class PaymentProcessor(ILogger<PaymentProcessor> logger)
     public PaymentProcessed Process(OrderSubmitted order)
     {
         Thread.Sleep(500);
+
+        // Orders already paid via Stripe are auto-approved
+        if (!string.IsNullOrEmpty(order.StripeSessionId))
+        {
+            var stripeRef = $"STRIPE-{order.StripeSessionId[..8].ToUpper()}";
+            logger.LogInformation("Payment AUTO-APPROVED (Stripe) for OrderId={OrderId}. SessionId={SessionId}",
+                order.OrderId, order.StripeSessionId);
+            return new PaymentProcessed
+            {
+                CorrelationId        = order.CorrelationId,
+                OrderId              = order.OrderId,
+                Success              = true,
+                TransactionReference = stripeRef,
+                Amount               = order.TotalAmount
+            };
+        }
+
         var approved  = _random.Next(1, 11) <= 9;
         var reference = $"PAY-{Guid.NewGuid().ToString("N")[..10].ToUpper()}";
 

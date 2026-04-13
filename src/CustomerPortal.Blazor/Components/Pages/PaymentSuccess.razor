@@ -1,0 +1,124 @@
+@page "/payment-success"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject ApiService Api
+@inject CartService Cart
+@inject NavigationManager Nav
+
+<PageTitle>Payment Confirmed – SportsStore</PageTitle>
+
+@if (_loading)
+{
+    <div class="loading-wrap py-5">
+        <div class="spinner-border text-success" role="status"></div>
+        <span>Confirming your payment…</span>
+    </div>
+}
+else if (_error is not null)
+{
+    <div class="page-header">
+        <h1 class="mb-0 text-danger">&#10060; Payment Error</h1>
+    </div>
+    <div class="alert alert-danger">@_error</div>
+    <a href="/checkout" class="btn btn-outline-primary me-2">Try Again</a>
+    <a href="/cart" class="btn btn-outline-secondary">Back to Cart</a>
+}
+else if (_order is not null)
+{
+    <div class="text-center py-4">
+        <div style="font-size:4rem;">&#9989;</div>
+        <h1 class="mt-2 mb-1">Payment Confirmed!</h1>
+        <p class="text-muted">Thank you for your order. Your payment has been processed by Stripe.</p>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>&#128230; Order #@_order.OrderId</span>
+            <code style="font-size:.8rem;">@_order.OrderReference</code>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <div class="p-3 rounded" style="background:#f8f9fb;">
+                        <div class="text-muted" style="font-size:.75rem;text-transform:uppercase;font-weight:700;letter-spacing:.06em;">Shipping To</div>
+                        <div class="fw-600 mt-1">@_order.ShippingName</div>
+                        <div class="text-muted small">@_order.ShippingLine1, @_order.ShippingCity, @_order.ShippingCountry</div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="p-3 rounded" style="background:#f8f9fb;">
+                        <div class="text-muted" style="font-size:.75rem;text-transform:uppercase;font-weight:700;letter-spacing:.06em;">Status</div>
+                        <div class="mt-1">
+                            <span class="badge bg-warning text-dark">@_order.StatusDisplay</span>
+                            <small class="text-muted d-block mt-1">Processing through our pipeline…</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#4a4e69;">Items Ordered</h6>
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr><th>Product</th><th>Qty</th><th>Price</th><th>Subtotal</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in _order.Items)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td>@item.Quantity</td>
+                            <td>@Eur(item.UnitPrice)</td>
+                            <td class="fw-bold">@Eur(item.Subtotal)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="fw-bold text-end">Total Paid</td>
+                        <td class="fw-bold" style="color:var(--brand-primary);">@Eur(_order.TotalAmount)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a href="/order-status/@_order.OrderId" class="btn btn-primary">Track Order</a>
+        <a href="/orders" class="btn btn-outline-secondary">My Orders</a>
+        <a href="/catalog" class="btn btn-outline-secondary ms-auto">Continue Shopping</a>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "session_id")]
+    public string? SessionId { get; set; }
+
+    bool _loading = true;
+    string? _error;
+    OrderDto? _order;
+
+    static string Eur(decimal amount) => $"€{amount:N2}";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SessionId))
+        {
+            _error   = "No payment session found.";
+            _loading = false;
+            return;
+        }
+
+        try
+        {
+            _order = await Api.CompleteStripeOrderAsync(SessionId);
+            Cart.Clear(); // Clear cart only after order is confirmed
+        }
+        catch (Exception ex)
+        {
+            _error = $"Could not confirm your order: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+}

@@ -46,6 +46,8 @@ public class CheckoutOrderHandler(
             ShippingCity    = req.ShippingCity,
             ShippingCountry = req.ShippingCountry,
             GiftWrap        = req.GiftWrap,
+            StripeSessionId = req.StripeSessionId,
+            PaymentIntentId = req.PaymentIntentId,
             Items = req.Items.Select(i => new OrderItem
             {
                 ProductId   = i.ProductId,
@@ -64,7 +66,8 @@ public class CheckoutOrderHandler(
             CorrelationId = correlationId,
             OrderId       = order.OrderId,
             CustomerId    = customer.CustomerId,
-            TotalAmount   = order.TotalAmount,
+            TotalAmount     = order.TotalAmount,
+            StripeSessionId = order.StripeSessionId,
             Items = req.Items.Select(i => new OrderItemMessage
             {
                 ProductId   = i.ProductId,

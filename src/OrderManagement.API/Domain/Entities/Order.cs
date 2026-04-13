@@ -17,6 +17,8 @@ public class Order
     public string ShippingCity { get; set; } = string.Empty;
     public string ShippingCountry { get; set; } = string.Empty;
     public bool GiftWrap { get; set; }
+    public string? StripeSessionId { get; set; }
+    public string? PaymentIntentId { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public ICollection<OrderItem> Items { get; set; } = [];

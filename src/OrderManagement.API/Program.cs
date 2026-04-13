@@ -3,6 +3,7 @@ using OrderManagement.API.Data;
 using OrderManagement.API.Mapping;
 using OrderManagement.API.Messaging;
 using OrderManagement.API.Messaging.Consumers;
+using OrderManagement.API.Services;
 using Serilog;
 using Serilog.Events;
 
@@ -37,6 +38,8 @@ try
     builder.Services.AddAutoMapper(typeof(MappingProfile));
 
     builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+    builder.Services.AddMemoryCache();
+    builder.Services.AddScoped<IStripeService, StripeService>();
 
     builder.Services.AddHostedService<InventoryResultConsumer>();
     builder.Services.AddHostedService<PaymentResultConsumer>();

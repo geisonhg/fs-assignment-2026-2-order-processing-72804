@@ -10,4 +10,8 @@ public class CheckoutRequestDto
     public string ShippingCity { get; set; } = string.Empty;
     public string ShippingCountry { get; set; } = string.Empty;
     public bool GiftWrap { get; set; }
+
+    // Set by the API after Stripe payment is verified
+    public string? StripeSessionId  { get; set; }
+    public string? PaymentIntentId  { get; set; }
 }

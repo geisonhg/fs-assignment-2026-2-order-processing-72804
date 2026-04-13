@@ -97,11 +97,17 @@
                 <button class="btn btn-success w-100 fw-bold py-2"
                         @onclick="PlaceOrderAsync"
                         disabled="@(!CanSubmit)">
-                    &#9989; Place Order
+                    &#128274; Pay with Stripe
                 </button>
                 @if (!CanSubmit)
                 {
                     <p class="text-muted text-center mb-0 mt-2" style="font-size:.78rem;">Complete all required fields above.</p>
+                }
+                else
+                {
+                    <p class="text-muted text-center mb-0 mt-2" style="font-size:.78rem;">
+                        You will be redirected to Stripe to complete payment securely.
+                    </p>
                 }
             </div>
         </div>
@@ -135,29 +141,35 @@
         {
             var request = new CheckoutRequestDto
             {
-                CustomerId = _customerId,
-                Items = Cart.Items.Select(i => new CartItemDto
+                CustomerId    = _customerId,
+                Items         = Cart.Items.Select(i => new CartItemDto
                 {
-                    ProductId = i.ProductId,
+                    ProductId   = i.ProductId,
                     ProductName = i.ProductName,
-                    UnitPrice = i.UnitPrice,
-                    Quantity = i.Quantity
+                    UnitPrice   = i.UnitPrice,
+                    Quantity    = i.Quantity
                 }).ToList(),
-                ShippingName = _shippingName,
-                ShippingLine1 = _shippingLine1,
-                ShippingLine2 = string.IsNullOrWhiteSpace(_shippingLine2) ? null : _shippingLine2,
-                ShippingCity = _shippingCity,
+                ShippingName    = _shippingName,
+                ShippingLine1   = _shippingLine1,
+                ShippingLine2   = string.IsNullOrWhiteSpace(_shippingLine2) ? null : _shippingLine2,
+                ShippingCity    = _shippingCity,
                 ShippingCountry = _shippingCountry,
-                GiftWrap = _giftWrap
+                GiftWrap        = _giftWrap
             };
 
-            var order = await Api.CheckoutAsync(request);
-            Cart.Clear();
-            Nav.NavigateTo($"/order-status/{order.OrderId}");
+            // Store cart in temp so it can be cleared after Stripe returns
+            var baseUrl    = Nav.BaseUri.TrimEnd('/');
+            var successUrl = $"{baseUrl}/payment-success?session_id={{CHECKOUT_SESSION_ID}}";
+            var cancelUrl  = $"{baseUrl}/payment-cancelled";
+
+            var stripeUrl = await Api.CreateStripeSessionAsync(request, successUrl, cancelUrl);
+
+            // Redirect browser to Stripe hosted checkout page
+            Nav.NavigateTo(stripeUrl, forceLoad: true);
         }
         catch (Exception ex)
         {
-            _error = $"Order failed: {ex.Message}";
+            _error = $"Could not initiate payment: {ex.Message}";
             _submitting = false;
         }
     }
