@@ -1,26 +1,371 @@
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+:root {
+  --brand-primary: #4361ee;
+  --brand-dark:    #3a0ca3;
+  --brand-light:   #e8ecfd;
+  --nav-bg:        #1a1a2e;
+  --card-radius:   0.75rem;
+  --card-shadow:   0 2px 12px rgba(0,0,0,.08);
+  --card-shadow-hover: 0 6px 20px rgba(67,97,238,.18);
+  --font-main:     'Inter', 'Segoe UI', sans-serif;
+}
+
+/* ── Base ───────────────────────────────────────────────────────────────── */
 html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: var(--font-main);
+  background: #f8f9fb;
+  color: #1e1e2e;
 }
 
-h1:focus {
-    outline: none;
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
+h1 { font-size: 1.9rem; }
+
+/* ── Navbar ─────────────────────────────────────────────────────────────── */
+.ss-navbar {
+  background: var(--nav-bg) !important;
+  border-bottom: 3px solid var(--brand-primary);
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+
+.ss-navbar .navbar-brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.ss-navbar .nav-link {
+  color: rgba(255,255,255,.8) !important;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.4rem;
+  transition: background 0.15s, color 0.15s;
+  text-decoration: none;
+}
+
+.ss-navbar .nav-link:hover {
+  color: #fff !important;
+  background: rgba(255,255,255,.1);
+}
+
+.ss-navbar .nav-link.active {
+  color: #fff !important;
+  background: var(--brand-primary);
+}
+
+/* ── Main layout ────────────────────────────────────────────────────────── */
+main.container {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+/* ── Page headers ───────────────────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 1.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e8eaf0;
+}
+
+/* ── Product cards ──────────────────────────────────────────────────────── */
+.product-card {
+  border: none;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  overflow: hidden;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+.product-card .card-body {
+  padding: 1.25rem;
+}
+
+.product-card .product-price {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--brand-primary);
+  margin-bottom: 0.5rem;
+}
+
+.product-card .card-footer {
+  background: #fff;
+  border-top: 1px solid #f0f0f0;
+  padding: 0.75rem 1.25rem;
+}
+
+/* ── Search bar ─────────────────────────────────────────────────────────── */
+.search-bar {
+  position: relative;
+}
+
+.search-bar .form-control {
+  border-radius: 2rem;
+  padding-left: 1rem;
+  border: 1.5px solid #dde1f0;
+  background: #fff;
+  box-shadow: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.search-bar .form-control:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(67,97,238,.12);
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
+  font-weight: 600;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background: var(--brand-dark);
+  border-color: var(--brand-dark);
+}
+
+.btn-success {
+  font-weight: 600;
+}
+
+.btn {
+  border-radius: 0.45rem;
+}
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+.table {
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  background: #fff;
+}
+
+.table thead th {
+  background: #f1f3fb;
+  color: #4a4e69;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-bottom: 2px solid #e2e5f0;
+  padding: 0.85rem 1rem;
+}
+
+.table tbody td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+  font-size: 0.9rem;
+  border-color: #f0f2f8;
+}
+
+.table tbody tr:hover {
+  background: #f8f9fd;
+}
+
+.table tfoot td {
+  padding: 0.85rem 1rem;
+  background: #f8f9fb;
+  font-size: 0.95rem;
+  border-top: 2px solid #e2e5f0;
+}
+
+/* ── Status badges ──────────────────────────────────────────────────────── */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.4em 0.75em;
+  border-radius: 2rem;
+  letter-spacing: 0.03em;
+}
+
+/* ── Cards (general) ────────────────────────────────────────────────────── */
+.card {
+  border: none;
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.card-header {
+  background: #f8f9fb;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4a4e69;
+  border-bottom: 1px solid #e8eaf0;
+  padding: 0.85rem 1.25rem;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.card-footer {
+  background: #f8f9fb;
+  border-top: 1px solid #e8eaf0;
+  padding: 0.85rem 1.25rem;
+}
+
+/* ── Cart ───────────────────────────────────────────────────────────────── */
+.qty-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f1f3fb;
+  border-radius: 2rem;
+  padding: 0.1rem 0.5rem;
+}
+
+.qty-control .btn {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.qty-control span {
+  font-weight: 600;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+/* ── Empty states ───────────────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #9a9db5;
+}
+
+.empty-state p {
+  font-size: 1.05rem;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Order status / tracking ────────────────────────────────────────────── */
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.55rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: #e2e5f0;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 0.85rem 1rem 0.85rem 1.25rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  border-left: 3px solid #e2e5f0;
+}
+
+.timeline-item.success { border-left-color: #2dc653; }
+.timeline-item.danger  { border-left-color: #e63946; }
+.timeline-item.pending { border-left-color: #f4a261; }
+
+.timeline-dot {
+  position: absolute;
+  left: -1.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 2px #ccc;
+}
+
+.timeline-dot.success { background: #2dc653; box-shadow: 0 0 0 2px #2dc653; }
+.timeline-dot.danger  { background: #e63946; box-shadow: 0 0 0 2px #e63946; }
+.timeline-dot.pending { background: #f4a261; box-shadow: 0 0 0 2px #f4a261; }
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+.toast {
+  border-radius: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+
+/* ── Forms ──────────────────────────────────────────────────────────────── */
+.form-control, .form-select {
+  border-radius: 0.45rem;
+  border: 1.5px solid #dde1f0;
+  font-size: 0.9rem;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(67,97,238,.12);
+}
+
+.form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4a4e69;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+/* ── Alerts ─────────────────────────────────────────────────────────────── */
+.alert {
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* ── Spinner ────────────────────────────────────────────────────────────── */
+.loading-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 0;
+  color: #9a9db5;
+  font-size: 0.9rem;
+}
+
+/* ── Blazor error UI ────────────────────────────────────────────────────── */
 #blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
+  background: #fff3cd;
+  bottom: 0;
+  box-shadow: 0 -1px 2px rgba(0,0,0,.2);
+  display: none;
+  left: 0;
+  padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+  position: fixed;
+  width: 100%;
+  z-index: 1000;
 }
 
 #blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
+  cursor: pointer;
+  position: absolute;
+  right: 0.75rem;
+  top: 0.5rem;
 }

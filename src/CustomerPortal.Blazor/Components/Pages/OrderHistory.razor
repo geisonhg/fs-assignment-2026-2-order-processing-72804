@@ -2,21 +2,30 @@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject ApiService Api
 
-<PageTitle>My Orders</PageTitle>
-<h1 class="mb-4">My Orders</h1>
+<PageTitle>My Orders – SportsStore</PageTitle>
+
+<div class="page-header">
+    <h1 class="mb-0">My Orders</h1>
+    <p class="text-muted mb-0 mt-1" style="font-size:.9rem;">View and track your past orders</p>
+</div>
 
 <div class="row mb-4">
-    <div class="col-md-4">
+    <div class="col-md-5">
+        <label class="form-label">Customer ID</label>
         <div class="input-group">
-            <input class="form-control" type="number" min="1" @bind="_customerId" placeholder="Enter Customer ID" />
-            <button class="btn btn-primary" @onclick="LoadAsync">Load</button>
+            <input class="form-control" type="number" min="1" @bind="_customerId" placeholder="e.g. 1" />
+            <button class="btn btn-primary fw-600" @onclick="LoadAsync">Load Orders</button>
         </div>
+        <div class="form-text text-muted">Try Customer ID <strong>1</strong> to see demo orders.</div>
     </div>
 </div>
 
 @if (_loading)
 {
-    <div class="spinner-border text-primary" role="status"></div>
+    <div class="loading-wrap">
+        <div class="spinner-border text-primary" role="status"></div>
+        <span>Loading orders…</span>
+    </div>
 }
 else if (_error is not null)
 {
@@ -26,10 +35,15 @@ else if (_orders is not null)
 {
     @if (!_orders.Any())
     {
-        <p class="text-muted">No orders found for customer @_customerId.</p>
+        <div class="empty-state">
+            <div style="font-size:3rem;margin-bottom:.75rem;">&#128230;</div>
+            <p>No orders found for customer #@_customerId.</p>
+            <a href="/catalog" class="btn btn-primary btn-sm">Start Shopping</a>
+        </div>
     }
     else
     {
+        <div class="mb-2 text-muted small">Showing @_orders.Count order@(_orders.Count == 1 ? "" : "s")</div>
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -45,11 +59,11 @@ else if (_orders is not null)
                 @foreach (var o in _orders.OrderByDescending(x => x.CreatedAt))
                 {
                     <tr>
-                        <td>#@o.OrderId</td>
-                        <td>@o.CreatedAt.ToString("d")</td>
-                        <td>@o.OrderReference</td>
-                        <td>@o.TotalAmount.ToString("C")</td>
-                        <td><span class="badge bg-secondary">@o.StatusDisplay</span></td>
+                        <td class="fw-bold">#@o.OrderId</td>
+                        <td class="text-muted">@o.CreatedAt.ToString("d MMM yyyy")</td>
+                        <td><code style="font-size:.8rem;">@o.OrderReference</code></td>
+                        <td class="fw-bold">@Eur(o.TotalAmount)</td>
+                        <td><span class="badge @StatusClass(o.StatusDisplay)">@o.StatusDisplay</span></td>
                         <td><a href="/order-status/@o.OrderId" class="btn btn-sm btn-outline-primary">Track</a></td>
                     </tr>
                 }
@@ -64,13 +78,25 @@ else if (_orders is not null)
     string? _error;
     List<OrderSummaryDto>? _orders;
 
+    static string Eur(decimal amount) => $"€{amount:N2}";
+
+    static string StatusClass(string status) => status switch
+    {
+        "Completed"                             => "bg-success",
+        "Failed" or "Cancelled"                 => "bg-danger",
+        "InventoryConfirmed" or "PaymentApproved" or "ShippingCreated" => "bg-info text-dark",
+        "InventoryPending" or "PaymentPending" or "ShippingPending"    => "bg-warning text-dark",
+        "InventoryFailed" or "PaymentFailed"    => "bg-danger",
+        _                                       => "bg-secondary"
+    };
+
     async Task LoadAsync()
     {
         if (_customerId <= 0) return;
         _loading = true;
         _error = null;
         try { _orders = await Api.GetCustomerOrdersAsync(_customerId); }
-        catch (Exception ex) { _error = $"Failed: {ex.Message}"; }
+        catch (Exception ex) { _error = $"Failed to load orders: {ex.Message}"; }
         finally { _loading = false; }
     }
 }

@@ -4,10 +4,230 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SportsStore Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     />
+    <style>
+      /* ── Design tokens ─────────────────────────────────────── */
+      :root {
+        --brand-primary: #4361ee;
+        --brand-dark:    #3a0ca3;
+        --brand-light:   #e8ecfd;
+        --nav-bg:        #1a1a2e;
+        --card-radius:   0.75rem;
+        --card-shadow:   0 2px 12px rgba(0,0,0,.08);
+        --font-main:     'Inter', 'Segoe UI', sans-serif;
+      }
+
+      html, body {
+        font-family: var(--font-main);
+        background: #f8f9fb;
+        color: #1e1e2e;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      h1 { font-size: 1.9rem; }
+
+      /* ── Navbar ───────────────────────────────────────────── */
+      .ss-navbar {
+        background: var(--nav-bg) !important;
+        border-bottom: 3px solid var(--brand-primary);
+        padding: 0.75rem 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      }
+
+      .ss-navbar .navbar-brand {
+        font-size: 1.2rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #fff !important;
+      }
+
+      .ss-navbar .nav-link {
+        color: rgba(255,255,255,.75) !important;
+        font-size: 0.88rem;
+        font-weight: 500;
+        padding: 0.4rem 0.75rem;
+        border-radius: 0.4rem;
+        transition: background 0.15s, color 0.15s;
+        text-decoration: none;
+      }
+
+      .ss-navbar .nav-link:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,.1);
+      }
+
+      .ss-navbar .nav-link.active {
+        color: #fff !important;
+        background: var(--brand-primary);
+        font-weight: 600;
+      }
+
+      .ss-navbar .nav-link.nav-failed {
+        color: #ff6b6b !important;
+      }
+
+      .ss-navbar .nav-link.nav-failed.active {
+        background: #e63946;
+        color: #fff !important;
+      }
+
+      /* ── Layout ───────────────────────────────────────────── */
+      main.container { padding-top: 2rem; padding-bottom: 3rem; }
+
+      .page-header {
+        margin-bottom: 1.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e8eaf0;
+      }
+
+      /* ── Cards ────────────────────────────────────────────── */
+      .card {
+        border: none;
+        border-radius: var(--card-radius);
+        box-shadow: var(--card-shadow);
+      }
+
+      .card-header {
+        background: #f8f9fb;
+        font-weight: 700;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #4a4e69;
+        border-bottom: 1px solid #e8eaf0;
+        padding: 0.85rem 1.25rem;
+        border-radius: var(--card-radius) var(--card-radius) 0 0 !important;
+      }
+
+      /* ── Stat cards ───────────────────────────────────────── */
+      .stat-card {
+        border: none;
+        border-radius: var(--card-radius);
+        box-shadow: var(--card-shadow);
+        transition: transform 0.15s, box-shadow 0.15s;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,.12);
+      }
+
+      .stat-card .card-body {
+        padding: 1.25rem 1.25rem 1rem;
+      }
+
+      .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        margin-bottom: 0.3rem;
+      }
+
+      .stat-card .stat-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        opacity: 0.85;
+      }
+
+      /* ── Tables ───────────────────────────────────────────── */
+      .table {
+        border-radius: var(--card-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+        background: #fff;
+        margin-bottom: 0;
+      }
+
+      .table thead th {
+        background: #f1f3fb;
+        color: #4a4e69;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 2px solid #e2e5f0;
+        padding: 0.85rem 1rem;
+      }
+
+      .table tbody td {
+        padding: 0.85rem 1rem;
+        vertical-align: middle;
+        font-size: 0.88rem;
+        border-color: #f0f2f8;
+      }
+
+      .table tbody tr:hover { background: #f8f9fd; }
+
+      .table tfoot td {
+        padding: 0.85rem 1rem;
+        background: #f8f9fb;
+        border-top: 2px solid #e2e5f0;
+        font-size: 0.95rem;
+      }
+
+      /* ── Badges ───────────────────────────────────────────── */
+      .badge {
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 0.38em 0.7em;
+        border-radius: 2rem;
+        letter-spacing: 0.03em;
+      }
+
+      /* ── Buttons ──────────────────────────────────────────── */
+      .btn { border-radius: 0.45rem; }
+      .btn-primary { background: var(--brand-primary); border-color: var(--brand-primary); font-weight: 600; }
+      .btn-primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
+
+      /* ── Forms ────────────────────────────────────────────── */
+      .form-control, .form-select {
+        border-radius: 0.45rem;
+        border: 1.5px solid #dde1f0;
+        font-size: 0.88rem;
+      }
+
+      .form-control:focus, .form-select:focus {
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 3px rgba(67,97,238,.12);
+      }
+
+      /* ── Timeline ─────────────────────────────────────────── */
+      .timeline-item {
+        padding: 0.85rem 1rem;
+        border-radius: 0.5rem;
+        border-left: 3px solid #e2e5f0;
+        background: #fff;
+        box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        margin-bottom: 0.5rem;
+      }
+
+      .timeline-item.success { border-left-color: #2dc653; }
+      .timeline-item.danger  { border-left-color: #e63946; }
+
+      /* ── Filter bar ───────────────────────────────────────── */
+      .filter-bar {
+        background: #fff;
+        border-radius: var(--card-radius);
+        padding: 1rem 1.25rem;
+        box-shadow: var(--card-shadow);
+        margin-bottom: 1.25rem;
+      }
+
+      /* ── Alerts ───────────────────────────────────────────── */
+      .alert { border: none; border-radius: 0.6rem; font-size: 0.9rem; }
+    </style>
   </head>
   <body>
     <div id="root"></div>

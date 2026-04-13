@@ -8,13 +8,26 @@ import FailedOrdersPage from './pages/FailedOrdersPage'
 export default function App() {
   return (
     <>
-      <nav className="navbar navbar-dark bg-dark px-3 mb-4">
-        <span className="navbar-brand fw-bold">&#9971; SportsStore Admin</span>
-        <div className="d-flex gap-3">
-          <NavLink className={({ isActive }) => 'nav-link text-white' + (isActive ? ' fw-bold' : '')} to="/">Dashboard</NavLink>
-          <NavLink className={({ isActive }) => 'nav-link text-white' + (isActive ? ' fw-bold' : '')} to="/orders">Orders</NavLink>
-          <NavLink className={({ isActive }) => 'nav-link text-white' + (isActive ? ' fw-bold' : '')} to="/products">Products</NavLink>
-          <NavLink className={({ isActive }) => 'nav-link text-danger' + (isActive ? ' fw-bold' : '')} to="/failed">Failed Orders</NavLink>
+      <nav className="navbar ss-navbar px-3 mb-0">
+        <span className="navbar-brand">&#9917; SportsStore Admin</span>
+        <div className="d-flex gap-1 align-items-center">
+          <NavLink
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+            to="/"
+            end
+          >Dashboard</NavLink>
+          <NavLink
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+            to="/orders"
+          >Orders</NavLink>
+          <NavLink
+            className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}
+            to="/products"
+          >Products</NavLink>
+          <NavLink
+            className={({ isActive }) => 'nav-link nav-failed' + (isActive ? ' active' : '')}
+            to="/failed"
+          >&#9888; Failed Orders</NavLink>
         </div>
       </nav>
       <main className="container">

@@ -2,19 +2,19 @@
 @inject CartService Cart
 @inject NavigationManager Nav
 
-<nav class="navbar navbar-dark bg-dark px-3 mb-4">
-    <a class="navbar-brand fw-bold" href="/">&#127941; SportsStore</a>
-    <div class="d-flex gap-3 align-items-center">
-        <a class="nav-link text-white" href="/catalog">Catalog</a>
-        <a class="nav-link text-white" href="/cart">
+<nav class="navbar ss-navbar px-3 mb-0">
+    <a class="navbar-brand" href="/">&#127936; SportsStore</a>
+    <div class="d-flex gap-1 align-items-center">
+        <a class="nav-link @(Nav.Uri.Contains("/catalog") || new Uri(Nav.Uri).AbsolutePath == "/" ? "active" : "")" href="/catalog">Catalog</a>
+        <a class="nav-link @(Nav.Uri.Contains("/cart") ? "active" : "")" href="/cart">
             Cart
             @if (Cart.TotalItems > 0)
             {
-                <span class="badge bg-warning text-dark ms-1">@Cart.TotalItems</span>
+                <span class="badge ms-1" style="background:var(--brand-primary);">@Cart.TotalItems</span>
             }
         </a>
-        <a class="nav-link text-white" href="/orders">My Orders</a>
-        <a class="nav-link text-white" href="/order-status">Track Order</a>
+        <a class="nav-link @(Nav.Uri.Contains("/orders") && !Nav.Uri.Contains("/order-status") ? "active" : "")" href="/orders">My Orders</a>
+        <a class="nav-link @(Nav.Uri.Contains("/order-status") ? "active" : "")" href="/order-status">Track Order</a>
     </div>
 </nav>
 
