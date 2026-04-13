@@ -47,6 +47,8 @@ services:
       RabbitMQ__Username: guest
       RabbitMQ__Password: guest
       Serilog__MinimumLevel__Default: Information
+      Stripe__PublishableKey: ${STRIPE_PUBLISHABLE_KEY}
+      Stripe__SecretKey: ${STRIPE_SECRET_KEY}
     depends_on:
       rabbitmq:
         condition: service_healthy
